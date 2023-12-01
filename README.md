@@ -46,14 +46,15 @@ Open the terminal and clone this repo:
 ```
 git clone https://github.com/Springer-Electronics/JLC2KiCad_lib.git
 ```
-Locate your Kicad python installation, e.g. c:/Program Files/KiCad/7.0/bin/python.exe
+Locate your Kicad python installation, e.g. `c:/Program Files/KiCad/7.0/bin/python.exe``
+
 Install KicadModTree dependency:
 ```
 "c:/Program Files/KiCad/7.0/bin/python.exe" -m pip install KicadModTree
 ```
 
 
-In PCB Editor, Tools -> External Plugins -> Refresh Plugins
+Then in PCB Editor, Tools -> External Plugins -> Refresh Plugins
 
 "Download JLC part" plugin will show up in PCB Editor, Tools -> External Plugins
 

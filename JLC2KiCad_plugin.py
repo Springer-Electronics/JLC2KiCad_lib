@@ -89,20 +89,25 @@ class JLC2KiCad_GUI(pcbnew.ActionPlugin):
 
         
         libpath = os.path.join(board_dir, OUTPUT_DIR, FOOTPRINT_LIB)
-        wx.MessageBox(footprint_name)
-
-        fp : pcbnew.FOOTPRINT = pcbnew.FootprintLoad(libpath, footprint_name.replace(FOOTPRINT_LIB + ":", ""))
+        
+        component_name = footprint_name.replace(FOOTPRINT_LIB + ":", "")
+        fp : pcbnew.FOOTPRINT = pcbnew.FootprintLoad(libpath, component_name)
         fp.SetPosition(pcbnew.VECTOR2I(0, 0))
         board.Add(fp)
         pcbnew.Refresh()
+        wx.MessageBox("Footprint " + component_name + " was placed in top left corner")
 
-        pcbnew.FocusOnItem(fp)
+        try:
+            pcbnew.FocusOnItem(fp)
 
-        self._pcbnew_frame = [x for x in wx.GetTopLevelWindows() if ('pcbnew' in x.GetTitle().lower() and 'python' not in x.GetTitle().lower()) or ('pcb editor' in x.GetTitle().lower())]
-        if len(self._pcbnew_frame) == 1:
-            self._pcbnew_frame = self._pcbnew_frame[0]
-        
-            wnd = [i for i in self._pcbnew_frame.Children if i.ClassName == 'wxWindow'][0]
-            evt = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
-            evt.SetKeyCode(ord('m'))
-            wx.PostEvent(wnd, evt)
+            self._pcbnew_frame = [x for x in wx.GetTopLevelWindows() if ('pcbnew' in x.GetTitle().lower() and 'python' not in x.GetTitle().lower()) or ('pcb editor' in x.GetTitle().lower())]
+            if len(self._pcbnew_frame) == 1:
+                self._pcbnew_frame = self._pcbnew_frame[0]
+            
+                wnd = [i for i in self._pcbnew_frame.Children if i.ClassName == 'wxWindow'][0]
+                evt = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+                evt.SetKeyCode(ord('m'))  #not reliable - it will move also footprint that was previously selected
+                wx.PostEvent(wnd, evt)
+        except:
+            #kicad 7 doesn't have FocusOnItem() method
+            pass

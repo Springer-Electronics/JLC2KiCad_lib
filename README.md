@@ -58,10 +58,6 @@ Then in PCB Editor, Tools -> External Plugins -> Refresh Plugins
 
 "Download JLC part" plugin will show up in PCB Editor, Tools -> External Plugins
 
-You can put the icon on the toolbar in:
-PCB Editor, Preferences -> Preferences/PCB Editor/ActionPlugins -> Show Button checkbox
-
-
 ## Usage 
 
 ```

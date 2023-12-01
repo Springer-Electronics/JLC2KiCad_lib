@@ -36,11 +36,26 @@ class JLC2KiCad_GUI(pcbnew.ActionPlugin):
         self.InitLogger()
         self.logger = logging.getLogger(__name__)
 
+    def IsVersion(self, VersionStr):
+        for v in VersionStr:
+            if v in self.kicad_build_version:
+                return True
+        return False
+
 
     def Run(self):
         board: pcbnew.BOARD = pcbnew.GetBoard()
         board_dir = os.path.dirname(board.GetFileName())
 
+        if self._pcbnew_frame is None:
+            try:
+                self._pcbnew_frame = [x for x in wx.GetTopLevelWindows() if ('pcbnew' in x.GetTitle().lower() and not 'python' in x.GetTitle().lower()) or ('pcb editor' in x.GetTitle().lower())]
+                if len(self._pcbnew_frame) == 1:
+                    self._pcbnew_frame = self._pcbnew_frame[0]
+                else:
+                    self._pcbnew_frame = None
+            except:
+                pass
 
         jlc_prompt = wx.TextEntryDialog(None, "JLCPCB part", value="", caption="Download footprint")
         if(jlc_prompt.ShowModal() == wx.ID_CANCEL):
@@ -90,21 +105,59 @@ class JLC2KiCad_GUI(pcbnew.ActionPlugin):
 
         
         libpath = os.path.join(board_dir, OUTPUT_DIR, FOOTPRINT_LIB)
-        
         component_name = footprint_name.replace(FOOTPRINT_LIB + ":", "")
-        fp : pcbnew.FOOTPRINT = pcbnew.FootprintLoad(libpath, component_name)
-        fp.SetPosition(pcbnew.VECTOR2I(0, 0))
-        board.Add(fp)
-        pcbnew.Refresh()
-        wx.MessageBox("Footprint " + component_name + " was placed in top left corner")
 
-        try:
-            pcbnew.FocusOnItem(fp)
+        self.logger.log(logging.DEBUG, "Loading footprint into the clipboard")
+        clipboard = wx.Clipboard.Get()
+        if clipboard.Open():
+            # read file
+            with open(os.path.join(libpath, component_name + ".kicad_mod"), 'r') as file:
+                footprint_string = file.read()
+            clipboard.SetData(wx.TextDataObject(footprint_string))
+            clipboard.Close()
+        else:
+            self.logger.log(logging.DEBUG, "Clipboard error")
+            fp : pcbnew.FOOTPRINT = pcbnew.FootprintLoad(libpath, component_name)
+            fp.SetPosition(pcbnew.VECTOR2I(0, 0))
+            board.Add(fp)
+            pcbnew.Refresh()
+            wx.MessageBox("Clipboard couldn't be opened. Footprint " + component_name + " was placed in top left corner of the canvas")
 
-            self._pcbnew_frame = [x for x in wx.GetTopLevelWindows() if ('pcbnew' in x.GetTitle().lower() and 'python' not in x.GetTitle().lower()) or ('pcb editor' in x.GetTitle().lower())]
-            if len(self._pcbnew_frame) == 1:
-                self._pcbnew_frame = self._pcbnew_frame[0]
+
+
+        # Footprint string pasting based on KiBuzzard https://github.com/gregdavill/KiBuzzard/blob/main/KiBuzzard/plugin.py
+        if self.IsVersion(['5.99','6.', '7.']):
+            if self._pcbnew_frame is not None:
+                # Set focus to main window and attempt to execute a Paste operation 
+                try:
+                    evt = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+                    evt.SetKeyCode(ord('V'))
+                    #evt.SetUnicodeKey(ord('V'))
+                    evt.SetControlDown(True)
+                    self.logger.log(logging.INFO, "Using wx.KeyEvent for paste")
             
+                    wnd = [i for i in self._pcbnew_frame.Children if i.ClassName == 'wxWindow'][0]
+
+                    self.logger.log(logging.INFO, " Injecting event: {} into window: {}".format(evt, wnd))
+                    wx.PostEvent(wnd, evt)
+                except:
+                    # Likely on Linux with old wx python support :(
+                    self.logger.log(logging.INFO, "Using wx.UIActionSimulator for paste")
+                    keyinput = wx.UIActionSimulator()
+                    self._pcbnew_frame.Raise()
+                    self._pcbnew_frame.SetFocus()
+                    wx.MilliSleep(100)
+                    wx.Yield()
+                    # Press and release CTRL + V
+                    keyinput.Char(ord("V"), wx.MOD_CONTROL)
+                    wx.MilliSleep(100)
+            else:
+                self.logger.log(logging.ERROR, "No pcbnew window found")
+        else:
+            self.logger.log(logging.ERROR, "Version check failed \"{}\" not in version list".format(self.kicad_build_version))
+
+
+
     def InitLogger(self):
         root = logging.getLogger()
         root.setLevel(logging.DEBUG)

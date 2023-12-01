@@ -1,7 +1,12 @@
 #!/usr/bin/env python
+import sys
 import pcbnew
 import os
 import wx
+import logging
+import tempfile
+import requests
+import json
 
 from .JLC2KiCadLib.footprint.footprint import create_footprint
 from .JLC2KiCadLib.symbol.symbol import create_symbol
@@ -28,6 +33,9 @@ class JLC2KiCad_GUI(pcbnew.ActionPlugin):
         self._pcbnew_frame = None
         self.kicad_build_version = pcbnew.GetBuildVersion()
 
+        self.InitLogger()
+        self.logger = logging.getLogger(__name__)
+
 
     def Run(self):
         board: pcbnew.BOARD = pcbnew.GetBoard()
@@ -41,9 +49,6 @@ class JLC2KiCad_GUI(pcbnew.ActionPlugin):
         if not component_id:
             return
 
-        import requests
-        import json
-        import logging
 
         logging.info(f"creating library for component {component_id}")
         data = json.loads(
@@ -100,10 +105,41 @@ class JLC2KiCad_GUI(pcbnew.ActionPlugin):
             if len(self._pcbnew_frame) == 1:
                 self._pcbnew_frame = self._pcbnew_frame[0]
             
-                wnd = [i for i in self._pcbnew_frame.Children if i.ClassName == 'wxWindow'][0]
-                evt = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
-                evt.SetKeyCode(ord('m'))  #not reliable - it will move also footprint that was previously selected
-                wx.PostEvent(wnd, evt)
-        except:
-            #kicad 7 doesn't have FocusOnItem() method
-            pass
+    def InitLogger(self):
+        root = logging.getLogger()
+        root.setLevel(logging.DEBUG)
+
+        # Log to stderr
+        handler1 = logging.StreamHandler(sys.stderr)
+        handler1.setLevel(logging.DEBUG)
+
+
+        log_path = os.path.dirname(__file__)
+        log_file = os.path.join(log_path, "JLC2KiCad_plugin.log")
+
+        # and to our error file
+        # Check logging file permissions, if fails, move log file to tmp folder
+        handler2 = None
+        try:
+            handler2 = logging.FileHandler(log_file)
+        except PermissionError:
+            log_path = os.path.join(tempfile.mkdtemp()) 
+            try: # Use try/except here because python 2.7 doesn't support exist_ok
+                os.makedirs(log_path)
+
+            except:
+                pass
+            log_file = os.path.join(log_path, "JLC2KiCad_plugin.log")
+            handler2 = logging.FileHandler(log_file)
+
+            # Also move config file
+            self.config_file = os.path.join(log_path, 'config.json')
+        
+        handler2.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            "%(asctime)s %(name)s %(lineno)d:%(message)s", datefmt="%m-%d %H:%M:%S"
+        )
+        handler1.setFormatter(formatter)
+        handler2.setFormatter(formatter)
+        root.addHandler(handler1)
+        root.addHandler(handler2)

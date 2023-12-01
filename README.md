@@ -44,7 +44,7 @@ Open PCB Editor, Tools -> External Plugins -> Open Plugin Directory
 
 Open the terminal and clone this repo:
 ```
-git clone https://github.com/TousstNicolas/JLC2KiCad_lib.git
+git clone https://github.com/Springer-Electronics/JLC2KiCad_lib.git
 ```
 Locate your Kicad python installation, e.g. `c:/Program Files/KiCad/7.0/bin/python.exe``
 

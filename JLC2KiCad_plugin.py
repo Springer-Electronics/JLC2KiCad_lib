@@ -3,14 +3,6 @@ import pcbnew
 import os
 import wx
 
-# https://github.com/TousstNicolas/JLC2KiCad_lib
-# install JLC2KiCad_lib as kicad python package:
-# cd /KicadPath/bin
-# ./python -m pip install path_to_JLC2KiCadLib
-import sys
-sys.path.append("..")
-
-
 from .JLC2KiCadLib.footprint.footprint import create_footprint
 from .JLC2KiCadLib.symbol.symbol import create_symbol
 
@@ -103,8 +95,8 @@ class JLC2KiCad_GUI(pcbnew.ActionPlugin):
         fp.SetPosition(pcbnew.VECTOR2I(0, 0))
         board.Add(fp)
         pcbnew.Refresh()
-        pcbnew.FocusOnItem(fp)
 
+        pcbnew.FocusOnItem(fp)
 
         self._pcbnew_frame = [x for x in wx.GetTopLevelWindows() if ('pcbnew' in x.GetTitle().lower() and 'python' not in x.GetTitle().lower()) or ('pcb editor' in x.GetTitle().lower())]
         if len(self._pcbnew_frame) == 1:

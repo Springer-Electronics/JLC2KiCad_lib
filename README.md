@@ -44,7 +44,7 @@ Open PCB Editor, Tools -> External Plugins -> Open Plugin Directory
 
 Open the terminal and clone this repo:
 ```
-git clone https://github.com/TousstNicolas/JLC2KiCad_lib.git
+git clone https://github.com/Springer-Electronics/JLC2KiCad_lib.git
 ```
 
 In PCB Editor, Tools -> External Plugins -> Refresh Plugins

@@ -25,7 +25,7 @@ easyEDA origin | KiCad result
 
 ## Installation
 
-Install using pip: 
+### Install using pip: 
 
 ```
 pip install JLC2KiCadLib
@@ -38,6 +38,25 @@ git clone https://github.com/TousstNicolas/JLC2KiCad_lib.git
 cd JLC2KiCad_lib 
 pip install . 
 ```
+
+### Install as Kicad script (plugin):
+Open PCB Editor, Tools -> External Plugins -> Open Plugin Directory
+
+Open the terminal and clone this repo:
+```
+git clone https://github.com/TousstNicolas/JLC2KiCad_lib.git
+```
+Locate your Kicad python installation, e.g. `c:/Program Files/KiCad/7.0/bin/python.exe``
+
+Install KicadModTree dependency:
+```
+"c:/Program Files/KiCad/7.0/bin/python.exe" -m pip install KicadModTree
+```
+
+
+Then in PCB Editor, Tools -> External Plugins -> Refresh Plugins
+
+"Download JLC part" plugin will show up in PCB Editor, Tools -> External Plugins
 
 ## Usage 
 

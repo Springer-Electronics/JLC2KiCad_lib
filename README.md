@@ -25,20 +25,6 @@ easyEDA origin | KiCad result
 
 ## Installation
 
-### Install using pip: 
-
-```
-pip install JLC2KiCadLib
-```
-
-Install from source:
-
-```
-git clone https://github.com/TousstNicolas/JLC2KiCad_lib.git
-cd JLC2KiCad_lib 
-pip install . 
-```
-
 ### Install as Kicad script (plugin):
 Open PCB Editor, Tools -> External Plugins -> Open Plugin Directory
 

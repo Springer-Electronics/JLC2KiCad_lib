@@ -4,7 +4,7 @@ import traceback
 import sys
 
 try:
-	print("Starting kidiff")
+	print("Starting JLC2KiCad_GUI")
 	from .JLC2KiCad_plugin import JLC2KiCad_GUI
 	JLC2KiCad_GUI().register()
 except Exception as e:

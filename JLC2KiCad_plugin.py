@@ -37,7 +37,7 @@ class MyCustomDialog(wx.Dialog):
         box = wx.StdDialogButtonSizer()
         
         box.AddButton(wx.Button(self, wx.ID_APPLY, "Download to project library"))
-        ok_button = wx.Button(self, wx.ID_OK, "Paste on PCB")
+        ok_button = wx.Button(self, wx.ID_OK, "Copy to clipboard")
         box.AddButton(ok_button)
         box.AddButton(wx.Button(self, wx.ID_CANCEL, "Cancel"))
         box.AddButton(wx.Button(self, wx.ID_HELP, "Help"))
